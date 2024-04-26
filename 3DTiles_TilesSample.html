@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>3D Tiles Set</title>
+<!-- <script type="text/javascript" src="http://localhost:8082/js/webglMapInit.js.do?version=2.0&apiKey=767B7ADF-10BA-3D86-AB7E-02816B5B92E9"></script> -->
+    <!-- 맵엔진 스타일 로딩 -->
+<script type="text/javascript" src="https://map.vworld.kr/js/webglMapInit.js.do?version=2.0&apiKey=767B7ADF-10BA-3D86-AB7E-02816B5B92E9"></script>
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.88/Build/Cesium/Cesium.js"></script>
+</head>
+
+<body>
+<div id="vmap" style="width:99%;height:700px;left:0px;top:0px"></div>
+
+<center>
+<h3>3D Tiles Set</h3>
+<input type="button" value="LAS 노출" onclick="javascript:createTiles();"/>&nbsp;&nbsp;
+<input type="button" value="LAS 비노출" onclick="javascript:deleteTiles();"/>&nbsp;&nbsp;
+lAS 파일의 정밀도
+<input type="range" id="maximumScreenSpaceError" name="range_tiles" vale="10" step="1" min="0" max="20" >
+</center>
+<script>
+
+    var map;
+        
+    vwmap();
+
+    function vwmap() {
+
+        var mapOptions = new vw.MapOptions(
+        	vw.BasemapType.GRAPHIC, 
+        	"",
+        	vw.DensityType.FULL,
+            vw.DensityType.FULL,
+            false,
+            new vw.CameraPosition(
+                new vw.CoordZ(126.485576065,33.516716881, 500),
+                new vw.Direction(-90, 0, 0)
+            ),
+            new vw.CameraPosition(
+            		new vw.CoordZ(126.485576065,33.516716881, 500),
+                new vw.Direction(0, -90, 0)
+            )
+        );
+
+        map = new vw.Map("vmap", mapOptions);
+
+    }
+    
+    
+    function deleteTiles() {
+        // 추가한 레이어 삭제
+        var lod4Layer = map.getLayerElement("test001");
+        if ( lod4Layer != null ) {
+        	console.log("test001 hide~~");
+        	lod4Layer.hide();
+        }
+    }
+    
+    // 3D Tiles 레이어 추가 , 경로 설정 , 아이디 부여 
+	function createTiles() {
+  
+        url = "./Seaside Rock/tileset.json"   //해당 폴더 압축 해제 후 폴더명 11169 변경
+
+        var options = {
+                "id" : "test001",        		
+                "name": "테스트", 
+                "url": url,
+                //"noOptimizeGeometricError" : true
+            };
+        console.log("3d options :" , options);
+        
+		var threedLayerElementInstance = new ws3d.common.map.ThreeDTileLayerElement(options);
+		map.addElement(threedLayerElementInstance);	
+
+    } 
+
+    
+    $(document).on("change","[name=range_tiles]",function(){
+        this_name = $(this).attr("name");
+        this_id = $(this).attr("id");
+        this_val = $(this).val();
+        
+        if(this_name.indexOf("range_tiles")>-1){
+            eval(`map.getLayerElement("test001")._tileset.${this_id}=${this_val}`);
+            $(this).parent().find('span').html(this_val)
+        }
+    })
+</script>
+</body>
+</html>
+
